@@ -32,13 +32,23 @@ done
 
 if [ ! -z "$HELP" ]; then
     echo "Convert the template diagram to the specified image"
-    echo "Syntax: [-o|--output <dir>] [-k|--keep] [-h|--help] <files>"
+    echo "Syntax: [-k|--keep] [-o|--output <dir>] [-h|--help] <files>"
     echo
     echo "options:"
-    echo "-k|--keep           Keeps the structure of the folder"
+    echo "-k|--keep <dir>     Keeps the structure of the folder"
     echo "-o|--output <dir>   Generate images in the specified directory"
-    echo "v     Verbose mode."
-    echo "V     Print software version and exit."
+    echo "-tpng               To generate images using PNG format (default)"
+    echo "-tsvg               To generate images using SVG format"
+    echo "-teps               To generate images using EPS format"
+    echo "-tpdf               To generate images using PDF format"
+    echo "-tvdx               To generate images using VDX format"
+    echo "-txmi               To generate XMI file for class diagram"
+    echo "-tscxml             To generate SCXML file for state diagram"
+    echo "-thtml              To generate HTML file for class diagram"
+    echo "-ttxt               To generate images with ASCII art"
+    echo "-tutxt              To generate images with ASCII art using Unicode characters"
+    echo "-tlatex             To generate images using LaTeX/Tikz format"
+    echo "-tlatex:nopreamble  To generate images using LaTeX/Tikz format without preamble"
     echo
     exit 0
 fi 
@@ -63,8 +73,8 @@ if [[ $KEEP ]]; then
 fi
 printf "FILESv2: $FILES \n\n"
 
-DIAGRAMS=$(plantuml -v "$TYPE" $([[ ! $KEEP && ! -z $OUTPUT ]] && echo "-o '$OUTPUT'") "${FILES//|/ }" \
-    |& grep Creating | cut -d " " -f 10- | awk '{print}' ORS='%0A' | sed 's/%0A$//')
+DIAGRAMS=$(java -jar plantuml.jar -v "$TYPE" $([[ ! $KEEP && ! -z $OUTPUT ]] && echo "-o '$OUTPUT'") "${FILES//|/ }" 2>&1 \
+    | grep -i "creating file:" | cut -d " " -f 10- | awk '{print}' ORS='%0A' | sed 's/%0A$//')
 
 [[ $KEEP ]] && printf "$FILES" | xargs -n 1 -d '|' rm -v
 
